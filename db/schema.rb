@@ -12,6 +12,7 @@
 
 ActiveRecord::Schema[7.1].define(version: 2024_07_11_153608) do
   # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_trgm"
   enable_extension "pgcrypto"
   enable_extension "plpgsql"
 
@@ -40,6 +41,7 @@ ActiveRecord::Schema[7.1].define(version: 2024_07_11_153608) do
     t.bigint "category_id"
     t.index ["author_id"], name: "index_recipes_on_author_id"
     t.index ["category_id"], name: "index_recipes_on_category_id"
+    t.index ["ingredients"], name: "index_recipes_on_ingredients", opclass: :jsonb_path_ops, using: :gin
   end
 
   add_foreign_key "recipes", "authors"
