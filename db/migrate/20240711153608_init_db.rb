@@ -2,6 +2,7 @@ class InitDb < ActiveRecord::Migration[7.1]
   def change
     enable_extension "pgcrypto"
     enable_extension "plpgsql"
+    enable_extension "pg_trgm"
 
     create_table "authors", force: :cascade do |t|
       t.string "name"
@@ -32,5 +33,7 @@ class InitDb < ActiveRecord::Migration[7.1]
 
     add_foreign_key "recipes", "authors"
     add_foreign_key "recipes", "categories"
+
+    add_index(:recipes, :ingredients, using: 'gin', opclass: :jsonb_path_ops)
   end
 end
