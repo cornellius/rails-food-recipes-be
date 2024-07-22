@@ -90,7 +90,7 @@ services:
       - "${DOCKER_WEB_PORT_FORWARD:-127.0.0.1:3000}:${PORT:-3000}"
     profiles: ["web"]
 
-    nginx:
+  nginx:
     image: frontend:latest
     ports:
       - "80:80"

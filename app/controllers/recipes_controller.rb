@@ -4,12 +4,15 @@ class RecipesController < ApplicationController
 
   # GET /recipes or /recipes.json
   def index
-    params[:page]? page = params[:page] : page = 1
+    @per_page = Kaminari.config.default_per_page
+    params[:page]? @page = params[:page] : @page = 1
 
     if params[:ingredients]
-      @recipes = Recipe.search_recipes(params[:ingredients]).order(created_at: :desc).page(page).per(6)
+      @total_recipes = Recipe.search_recipes(params[:ingredients]).count
+      @recipes = Recipe.search_recipes(params[:ingredients]).includes(:author, :category).order(created_at: :desc).page(@page)
     else
-      @recipes = Recipe.all.includes(:author, :category).order(created_at: :desc).page(page).per(10)
+      @total_recipes = Recipe.all.count
+      @recipes = Recipe.all.includes(:author, :category).order(created_at: :desc).page(@page)
     end
   end
 

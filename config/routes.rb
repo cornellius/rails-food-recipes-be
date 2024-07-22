@@ -1,7 +1,10 @@
 Rails.application.routes.draw do
-  resources :categories, defaults: {format: :json}
-  resources :authors, defaults: {format: :json}
-  resources :recipes, defaults: {format: :json}
+  constraints(lambda { |req| req.format == :json }) do
+    resources :categories, only: [:index, :show]
+    resources :authors, only: [:index, :show]
+    resources :recipes, only: [:index, :show]
+  end
+
   root to: "pages#home"
 
   get "/up/", to: "up#index", as: :up
