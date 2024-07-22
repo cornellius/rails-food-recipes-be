@@ -8,8 +8,8 @@ class RecipesController < ApplicationController
     params[:page]? @page = params[:page] : @page = 1
 
     if params[:ingredients]
-      @total_recipes = Recipe.search_recipes(params[:ingredients]).count
-      @recipes = Recipe.search_recipes(params[:ingredients]).includes(:author, :category).order(created_at: :desc).page(@page)
+      @total_recipes = Recipe.where(Recipe.search_query(params[:ingredients])).count
+      @recipes = Recipe.where(Recipe.search_query(params[:ingredients])).includes(:author, :category).order(created_at: :desc).page(@page)
     else
       @total_recipes = Recipe.all.count
       @recipes = Recipe.all.includes(:author, :category).order(created_at: :desc).page(@page)

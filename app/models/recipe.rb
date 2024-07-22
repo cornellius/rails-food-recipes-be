@@ -8,8 +8,8 @@ class Recipe < ApplicationRecord
   validates :author_id, presence: true
   validates :category_id, presence: true
 
-  # Return recipes that contain one or several ingredients
-  def self.search_recipes(ingredients)
+  # Build full-text search query that contains one or several ingredients
+  def self.search_query(ingredients)
     search_query = ""
 
     if ingredients.include? ","
@@ -24,6 +24,6 @@ class Recipe < ApplicationRecord
     else
       search_query = "ingredients @? '$[*] ? (@ like_regex \"#{ingredients}\" flag \"i\")'"
     end
-    @recipes = Recipe.where(search_query).includes(:author, :category)
+    @query = search_query
   end
 end
