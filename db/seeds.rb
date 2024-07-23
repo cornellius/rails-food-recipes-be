@@ -8,35 +8,54 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 
-all_authors = {}
-all_categories = {}
+existing_authors = {}
+existing_categories = {}
+
+all_authors = []
+authors_new_id = 0
+all_categories = []
+categories_new_id = 0
+all_recipes = []
 
 # JSON file
-all_recipes = JSON.parse(File.read('db/recipes-en.json'))
+import_recipes = JSON.parse(File.read('db/recipes-en.json'))
 
-all_recipes.each do |recipe|
-  # only add the author if the author doesn't already exist in authors table
+import_recipes.each do |recipe|
+  time = Time.now.utc
+
+  # only add the author if the author has not been added to all_authors yet
   author = recipe['author']
-  if all_authors.key?(author)
-    p all_authors
-    author_id = all_authors[author]
+  if existing_authors.key?(author)
+    author_id = existing_authors[author]
   else
-    new_author = Author.create(name: author)
-    all_authors[author] = new_author.id
-    author_id = new_author.id
+    existing_authors[author] = authors_new_id += 1
+    author_id = authors_new_id
+
+    all_authors << {
+      id: author_id,
+      name: author,
+      created_at:   time,
+      updated_at:   time
+    }
   end
 
-  # only add the category if the category doesn't already exist in categories table
+  # only add the category if the category has not been added to all_categories yet
   category = recipe['category']
-  if all_categories.key?(category)
-    category_id = all_categories[category]
+  if existing_categories.key?(category)
+    category_id = existing_categories[category]
   else
-    new_category = Category.create(name: category)
-    all_categories[category] = new_category.id
-    category_id = new_category.id
+    existing_categories[category] = categories_new_id += 1
+    category_id = categories_new_id
+
+    all_categories << {
+      id: category_id,
+      name: category,
+      created_at:   time,
+      updated_at:   time
+    }
   end
 
-  Recipe.create(
+  all_recipes << {
     title:        recipe['title'],
     prep_time:    recipe['prep_time'],
     cook_time:    recipe['cook_time'],
@@ -44,6 +63,17 @@ all_recipes.each do |recipe|
     image:        recipe['image'],
     ratings:      recipe['ratings'],
     category_id:  category_id,
-    author_id:    author_id
-  )
+    author_id:    author_id,
+    created_at:   time,
+    updated_at:   time
+  }
 end
+
+p "Now Inserting all authors..."
+Author.insert_all(all_authors)
+
+p "Now Inserting all categories..."
+Category.insert_all(all_categories)
+
+p "Now Inserting all recipes..."
+Recipe.insert_all(all_recipes)
