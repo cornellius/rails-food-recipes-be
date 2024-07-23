@@ -8,8 +8,8 @@ class RecipesController < ApplicationController
     params[:page]? @page = params[:page] : @page = 1
 
     if params[:ingredients]
-      @total_recipes = Recipe.where(Recipe.search_query(params[:ingredients])).count
-      @recipes = Recipe.where(Recipe.search_query(params[:ingredients])).includes(:author, :category).order(created_at: :desc).page(@page)
+      @total_recipes = Recipe.search_by_ingredients(params[:ingredients],only_count=true)
+      @recipes = Recipe.search_by_ingredients(params[:ingredients])
     else
       @total_recipes = Recipe.all.count
       @recipes = Recipe.all.includes(:author, :category).order(created_at: :desc).page(@page)
@@ -54,9 +54,6 @@ class RecipesController < ApplicationController
 
   # PATCH/PUT /recipes/1 or /recipes/1.json
   def update
-    p "==="
-    p recipe_params
-    p "==="
     respond_to do |format|
       if @recipe.update(recipe_params)
         format.html { redirect_to recipe_url(@recipe), notice: "Recipe was successfully updated." }
