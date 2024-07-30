@@ -8,7 +8,7 @@ class RecipesController < ApplicationController
     params[:page]? @page = params[:page] : @page = 1
 
     if params[:ingredients]
-      @total_recipes, @recipes = Recipe.search_by_ingredients(params[:ingredients])
+      @total_recipes, @recipes = Recipe.search_by_ingredients(params[:ingredients],@page)
     else
       @total_recipes = Recipe.all.count
       @recipes = Recipe.all.includes(:author, :category).order(created_at: :desc).page(@page)
