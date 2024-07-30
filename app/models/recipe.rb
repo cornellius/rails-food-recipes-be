@@ -9,7 +9,7 @@ class Recipe < ApplicationRecord
   validates :category_id, presence: true
 
   # Build full-text search query that contains one or several ingredients
-  def self.search_by_ingredients(ingredients,only_count=false)
+  def self.search_by_ingredients(ingredients)
     search_query = ""
 
     if ingredients.include? ","
@@ -25,11 +25,11 @@ class Recipe < ApplicationRecord
       sanitized_query = sanitize_for_query("(@ like_regex \"%s\" flag \"i\")'", ingredients)
       search_query << "ingredients @? '$[*] ? " + sanitized_query.to_s
     end
-    if only_count
-      @recipes = Recipe.where(search_query).includes(:author, :category).order(created_at: :desc).count
-    else
-      @recipes = Recipe.where(search_query).includes(:author, :category).order(created_at: :desc).page(@page)
-    end
+
+    @total_recipes = Recipe.where(search_query).includes(:author, :category).order(created_at: :desc).count
+    @recipes = Recipe.where(search_query).includes(:author, :category).order(created_at: :desc).page(@page)
+
+    return [@total_recipes, @recipes]
   end
 
   def self.sanitize_for_query(exp,val)
